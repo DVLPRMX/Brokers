@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro Broker y Cliente — THE DVLPR</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink:#111; --mid:#555; --muted:#888; --line:#E2E2E2;
+    --surface:#F7F7F5; --white:#fff; --error:#C0392B; --error-bg:#FEF0EF;
+    --success:#1A7A4A; --success-bg:#F0FAF5;
+  }
+  body { font-family:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif; background:var(--surface); color:var(--ink); min-height:100vh; }
+
+  /* ── HEADER ── */
+  .page-header { background:var(--ink); padding:18px 36px; display:flex; align-items:center; justify-content:space-between; }
+  .logo-mark { display:flex; align-items:center; gap:12px; }
+  .logo-box { width:34px; height:34px; background:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:var(--ink); }
+  .logo-text { color:#fff; font-size:12px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; }
+  .header-tag { color:#666; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; }
+
+  /* ── HERO ── */
+  .hero { background:#fff; border-bottom:1px solid var(--line); padding:36px 36px 28px; }
+  .hero-inner { max-width:860px; margin:0 auto; }
+  .hero-label { font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .hero-title { font-size:24px; font-weight:600; letter-spacing:-0.4px; }
+  .hero-sub { margin-top:7px; font-size:13px; color:var(--mid); line-height:1.6; }
+  .meta-row { margin-top:18px; display:flex; gap:28px; flex-wrap:wrap; }
+  .meta-item .m-label { font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+  .meta-item .m-val { font-size:12px; font-weight:600; margin-top:2px; font-variant-numeric:tabular-nums; }
+
+  /* ── WRAPPER ── */
+  .form-wrapper { max-width:860px; margin:0 auto; padding:36px 36px 80px; }
+
+  /* ── CARDS ── */
+  .card { background:#fff; border:1px solid var(--line); margin-bottom:20px; }
+  .card-head { padding:18px 24px 14px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:12px; }
+  .card-num { width:26px; height:26px; background:var(--ink); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .card-title { font-size:12px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; }
+  .card-desc { font-size:11px; color:var(--muted); margin-top:1px; }
+  .card-body { padding:22px 24px 26px; }
+
+  /* ── GRID ── */
+  .g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px 18px; }
+  .g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px 18px; }
+  .s2 { grid-column:span 2; }
+  .s3 { grid-column:span 3; }
+
+  /* ── FIELDS ── */
+  .f { display:flex; flex-direction:column; gap:4px; }
+  .f label { font-size:9px; letter-spacing:0.13em; text-transform:uppercase; font-weight:600; color:var(--mid); }
+  .f label .r { color:var(--error); margin-left:2px; }
+  .f input, .f select, .f textarea {
+    border:1px solid var(--line); background:var(--surface); padding:9px 11px;
+    font-size:13px; font-family:inherit; color:var(--ink); outline:none; border-radius:0;
+    transition:border-color .15s; width:100%;
+  }
+  .f input:focus,.f select:focus,.f textarea:focus { border-color:var(--ink); background:#fff; }
+  .f input.err,.f select.err { border-color:var(--error); background:var(--error-bg); }
+  .f .hint { font-size:10px; color:var(--muted); }
+  .f textarea { resize:vertical; min-height:70px; }
+  .f select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' fill='none' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 11px center; padding-right:30px; }
+
+  /* ── PILLS ── */
+  .pills { display:flex; flex-wrap:wrap; gap:7px; margin-top:3px; }
+  .pill { display:flex; align-items:center; gap:5px; padding:6px 11px; border:1px solid var(--line); background:var(--surface); cursor:pointer; font-size:11px; color:var(--mid); transition:all .12s; user-select:none; }
+  .pill input { display:none; }
+  .pill:hover { border-color:var(--ink); color:var(--ink); }
+  .pill.on { background:var(--ink); color:#fff; border-color:var(--ink); }
+
+  /* ── DIVIDER ── */
+  .div { height:1px; background:var(--line); margin:20px 0; }
+  .div-lbl { font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:var(--muted); text-align:center; margin:-8px 0 18px; }
+  .div-lbl span { background:#fff; padding:0 10px; }
+
+  /* ── DISCLAIMER ── */
+  .disc { border:1px solid var(--line); background:#F0F0EE; padding:14px 18px; margin-top:20px; }
+  .disc-title { font-size:9px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:7px; }
+  .disc p { font-size:11px; color:var(--mid); line-height:1.65; margin-bottom:6px; }
+  .disc p:last-child { margin-bottom:0; }
+  .accept { display:flex; align-items:flex-start; gap:10px; margin-top:14px; }
+  .accept input[type=checkbox] { width:15px; height:15px; margin-top:2px; accent-color:var(--ink); flex-shrink:0; cursor:pointer; }
+  .accept label { font-size:11px; color:var(--mid); line-height:1.6; cursor:pointer; }
+  .accept label strong { color:var(--ink); }
+
+  /* ── FOOTER ── */
+  .form-footer { display:flex; align-items:center; justify-content:space-between; margin-top:28px; padding-top:22px; border-top:1px solid var(--line); gap:16px; }
+  .form-footer .note { font-size:11px; color:var(--muted); line-height:1.55; }
+  .btn { background:var(--ink); color:#fff; border:none; padding:13px 32px; font-family:inherit; font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:opacity .15s; flex-shrink:0; }
+  .btn:hover { opacity:.82; }
+  .btn:disabled { opacity:.35; cursor:not-allowed; }
+
+  /* ── STATES ── */
+  .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:100; align-items:center; justify-content:center; }
+  .overlay.on { display:flex; }
+  .spinner-box { background:#fff; border:1px solid var(--line); padding:36px 44px; text-align:center; }
+  .spinner { width:32px; height:32px; border:2px solid var(--line); border-top-color:var(--ink); border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 16px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .spinner-box p { font-size:12px; color:var(--mid); }
+
+  .success-panel { display:none; background:#fff; border:1px solid var(--line); padding:44px 36px; text-align:center; }
+  .success-panel.on { display:block; }
+  .s-icon { width:44px; height:44px; background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; margin:0 auto 18px; }
+  .success-panel h3 { font-size:17px; font-weight:600; margin-bottom:7px; }
+  .success-panel p { font-size:13px; color:var(--mid); line-height:1.7; }
+  .folio-tag { margin-top:18px; display:inline-block; background:var(--surface); border:1px solid var(--line); padding:11px 22px; font-size:13px; font-weight:700; letter-spacing:0.08em; }
+
+  .err-banner { display:none; background:var(--error-bg); border:1px solid var(--error); color:var(--error); padding:12px 16px; font-size:12px; margin-bottom:16px; }
+  .err-banner.on { display:block; }
+
+  @media(max-width:640px){
+    .page-header,.hero,.form-wrapper { padding-left:18px; padding-right:18px; }
+    .card-head,.card-body { padding-left:18px; padding-right:18px; }
+    .g2,.g3 { grid-template-columns:1fr; }
+    .s2,.s3 { grid-column:span 1; }
+    .form-footer { flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Reemplaza esta URL con la de tu Apps Script desplegado -->
+<script>
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFhjAC_1Z29iUFa1YnIcBHWskUKhCKAkRnSd8Dv-K5PXTy5TWWvcLh6SkNN-H6_BZAFQ/exec";
+</script>
+
+<header class="page-header">
+  <div class="logo-mark">
+    <div class="logo-box">U</div>
+    <div class="logo-text">THE DVLPR</div>
+  </div>
+  <div class="header-tag">by UNO Consulting</div>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-label">Formulario BR-01</div>
+    <div class="hero-title">Registro de Broker y Cliente Protegido</div>
+    <div class="hero-sub">Registra al asesor y al cliente que representa. El cliente queda bajo protección por 90 días naturales.</div>
+    <div class="meta-row">
+      <div class="meta-item"><div class="m-label">Folio</div><div class="m-val" id="folioDisp">—</div></div>
+      <div class="meta-item"><div class="m-label">Fecha</div><div class="m-val" id="fechaDisp">—</div></div>
+      <div class="meta-item"><div class="m-label">Hora</div><div class="m-val" id="horaDisp">—</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="form-wrapper">
+  <div class="err-banner" id="errBanner"></div>
+  <form id="mainForm" novalidate>
+
+    <!-- BROKER -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-num">1</div>
+        <div><div class="card-title">Broker / Asesor</div><div class="card-desc">Datos del asesor que presenta el cliente</div></div>
+      </div>
+      <div class="card-body">
+        <div class="g2">
+          <div class="f"><label>Nombre(s)<span class="r">*</span></label><input name="broker_nombre" required placeholder="Nombre"></div>
+          <div class="f"><label>Apellido(s)<span class="r">*</span></label><input name="broker_apellido" required placeholder="Apellido(s)"></div>
+          <div class="f"><label>Celular / WhatsApp<span class="r">*</span></label><input name="broker_tel" type="tel" required placeholder="+52 999 000 0000"></div>
+          <div class="f"><label>Correo electrónico<span class="r">*</span></label><input name="broker_email" type="email" required placeholder="correo@agencia.com"></div>
+          <div class="f"><label>Agencia / Inmobiliaria</label><input name="broker_agencia" placeholder="Nombre o Independiente"></div>
+          <div class="f"><label>Ciudad / Plaza</label><input name="broker_ciudad" placeholder="Ej. Mérida, Cancún"></div>
+          <div class="f s2">
+            <label>Certificaciones / Membresías</label>
+            <div class="pills" id="certGroup">
+              <label class="pill"><input type="checkbox" value="AMPI"> AMPI</label>
+              <label class="pill"><input type="checkbox" value="NAR/NAR Global"> NAR / NAR Global</label>
+              <label class="pill"><input type="checkbox" value="SARE"> SARE</label>
+              <label class="pill"><input type="checkbox" value="Independiente"> Independiente</label>
+              <label class="pill"><input type="checkbox" value="Otra"> Otra</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTE -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-num">2</div>
+        <div><div class="card-title">Cliente Protegido</div><div class="card-desc">Comprador o inversionista representado</div></div>
+      </div>
+      <div class="card-body">
+        <div class="g2">
+          <div class="f"><label>Nombre completo<span class="r">*</span></label><input name="cliente_nombre" required placeholder="Nombre completo del cliente"></div>
+          <div class="f"><label>Correo electrónico<span class="r">*</span></label><input name="cliente_email" type="email" required placeholder="correo@dominio.com"></div>
+        </div>
+
+        <div class="div"></div>
+        <div class="div-lbl"><span>Perfil de Interés</span></div>
+        <div class="g2">
+          <div class="f"><label>Proyecto<span class="r">*</span></label>
+            <select name="proyecto" required>
+              <option value="">Seleccionar…</option>
+              <option>Metria</option><option>Yemanyá</option>
+            </select>
+          </div>
+          <div class="f"><label>Interés</label>
+            <select name="tipo_producto">
+              <option value="">Seleccionar…</option>
+              <option>Departamento</option><option>Penthouse</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="disc">
+          <div class="disc-title">Términos de Protección de Cliente</div>
+          <p>El registro garantiza la comisión acordada siempre que el cliente cierre dentro del período de vigencia, no haya sido registrado previamente por otro asesor, y el broker haya participado activamente. Vigencia <strong>90 días naturales</strong>. Los datos serán tratados conforme a la LFPDPPP.</p>
+        </div>
+        <div class="accept">
+          <input type="checkbox" id="acepto" name="acepto" required>
+          <label for="acepto">He leído y acepto los <strong>Términos de Protección</strong>. La información es verídica y tengo autorización del cliente para registrar sus datos.</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-footer">
+      <div class="note">Confirmación automática al correo del broker en los próximos minutos.</div>
+      <button type="submit" class="btn" id="submitBtn">Registrar Cliente →</button>
+    </div>
+  </form>
+
+  <div class="success-panel" id="successPanel">
+    <div class="s-icon">✓</div>
+    <h3>Registro Enviado</h3>
+    <p>El cliente fue registrado y se enviaron confirmaciones por correo al broker y al equipo UNO.</p>
+    <div class="folio-tag" id="folioFinal">—</div>
+    <p style="margin-top:14px; font-size:11px; color:var(--muted);">Guarda este folio como comprobante de protección.</p>
+    <button class="btn" style="margin-top:24px;" onclick="location.reload()">Nuevo Registro</button>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div class="overlay" id="overlay">
+  <div class="spinner-box">
+    <div class="spinner"></div>
+    <p>Enviando registro…</p>
+  </div>
+</div>
+
+<script>
+  // Pills
+  document.querySelectorAll('.pill').forEach(p => p.addEventListener('click', () => p.classList.toggle('on')));
+
+  // Folio + fecha
+  const now = new Date();
+  const folio = 'BR-' + String(now.getFullYear()).slice(-2) + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + '-' + (Math.floor(Math.random()*9000)+1000);
+  document.getElementById('folioDisp').textContent = folio;
+  document.getElementById('fechaDisp').textContent = now.toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
+  document.getElementById('horaDisp').textContent = now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+
+  document.getElementById('mainForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    document.getElementById('errBanner').classList.remove('on');
+
+    // Validate
+    let valid = true;
+    this.querySelectorAll('[required]').forEach(el => {
+      el.classList.remove('err');
+      if (el.type === 'checkbox') { if (!el.checked) valid = false; }
+      else if (!el.value.trim()) { el.classList.add('err'); valid = false; }
+    });
+    if (!valid) {
+      const b = document.getElementById('errBanner');
+      b.textContent = 'Por favor completa todos los campos obligatorios (*) y acepta los términos.';
+      b.classList.add('on');
+      b.scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+
+    // Collect certs
+    const certs = [...document.querySelectorAll('.pill.on input')].map(i => i.value).join(', ');
+
+    // Build payload
+    const fd = new FormData(this);
+    const payload = { tipo: 'broker', folio };
+    fd.forEach((v, k) => { payload[k] = v; });
+    payload.broker_certs = certs;
+
+    document.getElementById('overlay').classList.add('on');
+    document.getElementById('submitBtn').disabled = true;
+
+    try {
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      document.getElementById('overlay').classList.remove('on');
+      if (data.ok) {
+        document.getElementById('mainForm').style.display = 'none';
+        document.getElementById('successPanel').classList.add('on');
+        document.getElementById('folioFinal').textContent = 'Folio: ' + (data.folio || folio);
+        window.scrollTo({top:0,behavior:'smooth'});
+      } else {
+        throw new Error(data.msg || 'Error desconocido');
+      }
+    } catch (err) {
+      document.getElementById('overlay').classList.remove('on');
+      document.getElementById('submitBtn').disabled = false;
+      const b = document.getElementById('errBanner');
+      b.textContent = 'Error al enviar: ' + err.message + '. Verifica la conexión y vuelve a intentar.';
+      b.classList.add('on');
+    }
+  });
+</script>
+</body>
+</html>
